@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"todolist/internal/config"
+	"todolist/internal/storage/postgresql"
 )
 
 const (
@@ -16,7 +18,21 @@ func main() {
 	cfg := config.MustLoad()
 
 	log := setupLogger(cfg.Env)
-	_ = log
+
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.DB.Username,
+		cfg.DB.DBPassword,
+		cfg.DB.Host, cfg.DB.Port,
+		cfg.DB.DBName,
+		cfg.DB.SSLMode,
+	)
+
+	storage, err := postgresql.New(dsn)
+	if err != nil {
+		log.Error("failed to init storage:", err)
+	}
+	defer storage.DB.Close()
 }
 
 func setupLogger(env string) *slog.Logger {
