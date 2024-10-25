@@ -1,0 +1,12 @@
+env: "local"
+http_server:
+  host: "todo-list-service"
+  port: "8000"
+  timeout: 4s
+  idle_timeout: 60s
+db:
+  username: "postgres"
+  host: "db"
+  port: "5432"
+  dbname: "todo-list-db"
+  sslmode: "disable"

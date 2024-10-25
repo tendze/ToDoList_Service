@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"todolist/internal/config"
+)
 
 func main() {
-	fmt.Println("hi")
+	cfg := config.MustLoad()
 }
