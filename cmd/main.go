@@ -16,6 +16,7 @@ const (
 
 func main() {
 	cfg := config.MustLoad()
+	fmt.Println(cfg)
 
 	log := setupLogger(cfg.Env)
 
@@ -33,6 +34,7 @@ func main() {
 		log.Error("failed to init storage:", err)
 	}
 	defer storage.DB.Close()
+
 }
 
 func setupLogger(env string) *slog.Logger {

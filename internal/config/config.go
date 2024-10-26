@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	Env        string     `yaml:"local" env-default:"local"`
+	Env        string     `yaml:"env" env-default:"local"`
 	HTTPServer HTTPServer `yaml:"http_server"`
 	DB         DataBase   `yaml:"db"`
 }
@@ -42,10 +42,20 @@ func MustLoad() *Config {
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
 		log.Fatalf("cannot read config: %s", err)
 	}
+
+	if cfg.Env == "local" {
+		cfg.HTTPServer.Host = "localhost"
+		cfg.DB.Host = "localhost"
+	}
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("error loading .env file: %v", err)
 	}
 	cfg.DB.DBPassword = os.Getenv("DB_PASSWORD")
+	if cfg.Env == "local" {
+		cfg.DB.DBPassword = os.Getenv("DB_PASSWORD_LOCAL")
+	}
+
 	return &cfg
 }

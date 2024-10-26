@@ -6,7 +6,7 @@ http_server:
   idle_timeout: 60s
 db:
   username: "postgres"
-  host: "db"
+  host: "todo-db"
   port: "5432"
   dbname: "todo-list-db"
   sslmode: "disable"
