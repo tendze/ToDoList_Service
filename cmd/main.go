@@ -10,6 +10,7 @@ import (
 	"todolist/internal/config"
 	add_task2 "todolist/internal/http-server/handlers/add-task"
 	complete_task "todolist/internal/http-server/handlers/complete-task"
+	get_tasks "todolist/internal/http-server/handlers/get-tasks"
 	"todolist/internal/http-server/middleware/auth"
 	"todolist/internal/http-server/middleware/logger"
 	"todolist/internal/storage/postgresql"
@@ -54,6 +55,7 @@ func main() {
 
 	router.Post("/add_task", add_task2.New(log, storage))
 	router.Patch("/complete", complete_task.New(log, storage))
+	router.Get("/get_tasks", get_tasks.New(log, storage))
 
 	serverAddr := cfg.HTTPServer.Host + ":" + cfg.HTTPServer.Port
 	log.Info("starting server...", slog.String("address", serverAddr))

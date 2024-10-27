@@ -78,3 +78,34 @@ func (s *Storage) CompleteTask(id int, login string, newTaskStatus storage.TaskS
 	}
 	return nil
 }
+
+func (s *Storage) GetAllTasks(login string, status string) ([]storage.Task, error) {
+	var rows *sql.Rows
+	var err error
+	if status == "" {
+		rows, err = s.DB.Query(`SELECT id, title, description, created_at, deadline
+		FROM tasks
+		WHERE user_login = $1`, login)
+	} else {
+		rows, err = s.DB.Query(`SELECT id, title, description, created_at, deadline
+		FROM tasks
+		WHERE user_login = $1 AND status = $2`, login, status)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []storage.Task
+	for rows.Next() {
+		var task storage.Task
+		if err = rows.Scan(&task.ID, &task.Title, &task.Description, &task.CreatedAt, &task.Deadline); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
