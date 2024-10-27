@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"time"
 )
 
 type Storage struct {
@@ -38,4 +39,20 @@ func New(dsn string) (*Storage, error) {
 	}
 	strg := &Storage{DB: db}
 	return strg, nil
+}
+
+func (s *Storage) AddTask(userLogin, title, description string, deadline time.Time) error {
+	const op = "storage.postgresql.AddTask"
+	query := `INSERT INTO tasks(user_login, title, description, deadline) VALUES($1, $2, $3, $4)`
+	_, err := s.DB.Exec(
+		query,
+		userLogin,
+		title,
+		description,
+		deadline,
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
 }

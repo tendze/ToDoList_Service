@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"os"
 	"todolist/internal/config"
+	"todolist/internal/http-server/middleware/logger"
 	"todolist/internal/storage/postgresql"
 )
 
@@ -34,6 +37,15 @@ func main() {
 		log.Error("failed to init storage:", err)
 	}
 	defer storage.DB.Close()
+
+	router := chi.NewRouter()
+	router.Use(
+		logger.New(log),
+		middleware.RequestID,
+		middleware.Logger,
+		middleware.Recoverer,
+		middleware.URLFormat,
+	)
 
 }
 
