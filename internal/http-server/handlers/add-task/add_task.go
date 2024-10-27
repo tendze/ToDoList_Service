@@ -12,9 +12,9 @@ import (
 )
 
 type Request struct {
-	Title       string
-	Description string
-	Deadline    time.Time
+	Title       string    `json:"title" validate:"required"`
+	Description string    `json:"description" validate:"required"`
+	Deadline    time.Time `json:"deadline"`
 }
 
 type Response struct {

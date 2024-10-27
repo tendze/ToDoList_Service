@@ -5,8 +5,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
+	"net/http"
 	"os"
 	"todolist/internal/config"
+	add_task "todolist/internal/http-server/handlers/add-task"
+	"todolist/internal/http-server/middleware/auth"
 	"todolist/internal/http-server/middleware/logger"
 	"todolist/internal/storage/postgresql"
 )
@@ -40,13 +43,29 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Use(
-		logger.New(log),
 		middleware.RequestID,
 		middleware.Logger,
 		middleware.Recoverer,
 		middleware.URLFormat,
+		logger.New(log),
+		auth.New(log),
 	)
 
+	router.Post("/add_task", add_task.New(log, storage))
+
+	serverAddr := cfg.HTTPServer.Host + ":" + cfg.HTTPServer.Port
+	log.Info("starting server...", slog.String("address", serverAddr))
+	server := &http.Server{
+		Addr:         serverAddr,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+	if err = server.ListenAndServe(); err != nil {
+		log.Error("failed to start server")
+	}
+	log.Error("server stopped")
 }
 
 func setupLogger(env string) *slog.Logger {
